@@ -11,10 +11,16 @@ import {
   Input,
   PopoverTrigger,
   Popover,
-  PopoverContent
+  PopoverContent, Spinner
 } from "@nextui-org/react";
 import { Todo } from "@/types";
 import { Button } from "@nextui-org/button";
+import { useRouter } from "next/navigation";
+
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+// minified version is also included
+// import 'react-toastify/dist/ReactToastify.min.css';
 
 const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
@@ -23,6 +29,34 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
   // 입력된 할 일
   const [newTodoInput, setNewTodoInput] = useState('');
+
+  // 로딩상태
+  const [isLoading, setIsLoading] = useState<Boolean>(false);
+
+  const router = useRouter();
+
+  const addATodoHandler = async (title: string) => {
+
+      if (!todoAddEnable) { return }
+
+      setTodoAddEnable(false);
+      setIsLoading(true);
+      await new Promise(f => setTimeout(f, 300));
+      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos`, {
+        method: 'post',
+        body: JSON.stringify({
+          title: title
+        }),
+        cache: 'no-store'
+      })
+    setNewTodoInput('');
+    router.refresh();
+    setIsLoading(false);
+    notifyTodoAddedEvent("할 일이 추가되었어요!");
+    console.log(`할 일 추가완료 : ${newTodoInput}`);
+  };
+
+
 
   const DisabledTodoAddButton = () => {
     return <Popover placement="top" showArrow={true}>
@@ -49,23 +83,41 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     </TableRow>
   }
 
+  const notifyTodoAddedEvent = (msg: string) => toast.success(msg);
+
   return (
-    <>
+    <div className="flex flex-col space-y-2">
+        <ToastContainer
+          position="top-right"
+          autoClose={1800}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark" />
       <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
-          <Input type="text" label="새로운 할 일"
-              value={newTodoInput}
-              onValueChange={(changedInput) => {
-                setNewTodoInput(changedInput);
-                setTodoAddEnable(changedInput.length > 0);
-            }}
-          />
+        <Input type="text" label="새로운 할 일"
+               value={newTodoInput}
+               onValueChange={(changedInput) => {
+                 setNewTodoInput(changedInput);
+                 setTodoAddEnable(changedInput.length > 0);
+               }}
+        />
         {todoAddEnable ?
-          <Button color="warning" className="h-14">
+          <Button color="warning" className="h-14"
+                  onPress={async () => {
+                    await addATodoHandler(newTodoInput)
+                  }}
+          >
             추가
           </Button> :
           DisabledTodoAddButton()
         }
       </div>
+      <div className="h-6">{isLoading && <Spinner size="sm" color="warning" />}</div>
       <Table aria-label="Example static collection table">
         <TableHeader>
           <TableColumn>아이디</TableColumn>
@@ -79,7 +131,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
           ))}
         </TableBody>
       </Table>
-    </>
+    </div>
   );
 }
 
