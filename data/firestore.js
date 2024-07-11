@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getFirestore, collection, doc, getDocs, getDoc, setDoc, Timestamp, deleteDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, getDocs, getDoc, setDoc, Timestamp, deleteDoc, updateDoc, query, orderBy } from "firebase/firestore";
 
 
 // Your web app's Firebase configuration
@@ -21,7 +21,10 @@ const db = getFirestore(app);
 
 // 모든 할 일 조회
 export async function fetchTodos(){
-  const querySnapshot = await getDocs(collection(db, "todos"));
+  const todosRef = collection(db, "todos");
+  const descQuery = query(todosRef, orderBy("created_at", "desc"));
+
+  const querySnapshot = await getDocs(descQuery);
 
   if (querySnapshot.empty) {
     return [];
