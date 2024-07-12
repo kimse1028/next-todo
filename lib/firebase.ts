@@ -1,7 +1,7 @@
 'use client';
 
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, inMemoryPersistence, setPersistence } from "firebase/auth";
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
@@ -24,3 +24,10 @@ if (!getApps().length) {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// 개발 환경에서만 인메모리 지속성 설정
+if (process.env.NODE_ENV === 'development') {
+  setPersistence(auth, inMemoryPersistence)
+    .then(() => console.log('Using in-memory persistence for development'))
+    .catch((error) => console.error('Error setting persistence:', error));
+}
