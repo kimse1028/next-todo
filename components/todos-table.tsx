@@ -22,6 +22,8 @@ import { VerticalDotsIcon } from "./icons";
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import CustomModal from "@/components/custom-modal";
+import { id } from "postcss-selector-parser";
 // minified version is also included
 // import 'react-toastify/dist/ReactToastify.min.css';
 
@@ -44,6 +46,8 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
   const router = useRouter();
 
+
+
   const addATodoHandler = async (title: string) => {
 
       if (!todoAddEnable) { return }
@@ -57,12 +61,35 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
           title: title
         }),
         cache: 'no-store'
-      })
+      });
     setNewTodoInput('');
     router.refresh();
     setIsLoading(false);
-    notifyTodoAddedEvent("할 일이 추가되었어요!");
+    notifySuccessAddedEvent("할 일이 추가되었어요!");
     console.log(`할 일 추가완료 : ${newTodoInput}`);
+  };
+
+
+
+  const editATodoHandler = async (
+    id: string,
+    editedTitle: string,
+    editedIsDone: boolean) => {
+
+
+    await new Promise(f => setTimeout(f, 1000));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
+      method: 'post',
+      body: JSON.stringify({
+        title: editedTitle,
+        is_done: editedIsDone
+      }),
+      cache: 'no-store'
+    });
+
+    router.refresh();
+    notifySuccessAddedEvent("할 일이 수정되었어요!");
+    console.log(`할 일 수정완료 : ${newTodoInput}`);
   };
 
 
@@ -105,7 +132,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
               onOpen();
             }}>
               <DropdownItem key="detail">상세보기</DropdownItem>
-              <DropdownItem key="update">수정</DropdownItem>
+              <DropdownItem key="edit">수정</DropdownItem>
               <DropdownItem key="delete">삭제</DropdownItem>
             </DropdownMenu>
           </Dropdown>
@@ -114,7 +141,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     </TableRow>
   }
 
-  const notifyTodoAddedEvent = (msg: string) => toast.success(msg);
+  const notifySuccessAddedEvent = (msg: string) => toast.success(msg);
 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
@@ -122,36 +149,16 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     return <Modal backdrop="blur" isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">{currentModalData.modalType}</ModalHeader>
-              <ModalBody>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  Nullam pulvinar risus non risus hendrerit venenatis.
-                  Pellentesque sit amet hendrerit risus, sed porttitor quam.
-                </p>
-                <p>
-                  Magna exercitation reprehenderit magna aute tempor cupidatat consequat elit
-                  dolor adipisicing. Mollit dolor eiusmod sunt ex incididunt cillum quis.
-                  Velit duis sit officia eiusmod Lorem aliqua enim laboris do dolor eiusmod.
-                  Et mollit incididunt nisi consectetur esse laborum eiusmod pariatur
-                  proident Lorem eiusmod et. Culpa deserunt nostrud ad veniam.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
-                  Close
-                </Button>
-                <Button color="primary" onPress={onClose}>
-                  Action
-                </Button>
-              </ModalFooter>
-            </>
+            (currentModalData.focusedTodo &&
+              <CustomModal focusedTodo={currentModalData.focusedTodo}
+                           modalType={currentModalData.modalType}
+                           onClose={onClose}
+                           onEdit={async (id, title, isDone) => {
+                             console.log(id, title, isDone);
+                             await editATodoHandler(id, title, isDone);
+                             onClose();
+                           }}
+              />)
           )}
         </ModalContent>
       </Modal>
