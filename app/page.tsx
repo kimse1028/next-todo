@@ -27,20 +27,12 @@ export default function Home() {
 
   return (
     <div>
-      <h1>당신이 해야 할 모든 것 - TODOS</h1>
       {user ? (
         <>
           <p>Loading . . .</p>
         </>
       ) : (
         <>
-          <Link href="/login">
-            <Button>Login</Button>
-          </Link>
-          <Link href="/signup">
-            <Button>Sign Up</Button>
-          </Link>
-          <Button onClick={handleGoogleLogin}>Google로 로그인</Button>
         </>
       )}
     </div>
