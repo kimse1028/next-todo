@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from '../../lib/firebase';
 import { signInWithGoogle } from '../../lib/auth';
 import { useRouter } from 'next/navigation';
@@ -32,13 +32,12 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const signIn = async () => {
+    const provider = new GoogleAuthProvider();
     try {
-      await signInWithGoogle();
-      router.push('/todos');
+      await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error('Google login error:', error);
-      alert('구글 로그인에 실패했습니다. 다시 시도해 주세요.');
+      console.error("Error signing in with Google", error);
     }
   };
 
@@ -59,7 +58,7 @@ export default function Login() {
         />
         <Button type="submit">Login</Button>
       </form>
-      <Button onClick={handleGoogleLogin}>Google로 로그인</Button>
+      <Button onClick={signIn}>Google로 로그인</Button>
       <p>계정이 없으신가요? <Link href="/signup">회원가입</Link></p>
     </>
   );

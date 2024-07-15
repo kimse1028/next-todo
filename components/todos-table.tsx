@@ -24,6 +24,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CustomModal from "@/components/custom-modal";
 import { id } from "postcss-selector-parser";
+import { useAuth } from "@/contexts/AuthContext";
 // minified version is also included
 // import 'react-toastify/dist/ReactToastify.min.css';
 
@@ -31,13 +32,10 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
   // 할 일 추가 가능 여부
   const [todoAddEnable, setTodoAddEnable] = useState(false);
-
   // 입력된 할 일
   const [newTodoInput, setNewTodoInput] = useState('');
-
   // 로딩상태
   const [isLoading, setIsLoading] = useState<Boolean>(false);
-
   // 띄우는 모달 상태
   const [currentModalData, setCurrentModalData] = useState<FocusedTodoType>({
     focusedTodo: null,
@@ -45,23 +43,24 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
   });
 
   const router = useRouter();
-
-
+  const { user } = useAuth();
 
   const addATodoHandler = async (title: string) => {
+    if (!todoAddEnable) { return }
+    if (!newTodoInput.trim() || !user) return;
 
-      if (!todoAddEnable) { return }
+    setTodoAddEnable(false);
+    setIsLoading(true);
+    await new Promise(f => setTimeout(f, 300));
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos`, {
+      method: 'post',
+      body: JSON.stringify({
+        title: title,
+        userId: user.uid
+      }),
+      cache: 'no-store'
+    });
 
-      setTodoAddEnable(false);
-      setIsLoading(true);
-      await new Promise(f => setTimeout(f, 300));
-      await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos`, {
-        method: 'post',
-        body: JSON.stringify({
-          title: title
-        }),
-        cache: 'no-store'
-      });
     setNewTodoInput('');
     router.refresh();
     setIsLoading(false);
@@ -132,6 +131,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     return <TableRow key={aTodo.id}>
       <TableCell className={applyIsDoneUI(aTodo.is_done)}>{aTodo.id.slice(0, 4)}</TableCell>
       <TableCell className={applyIsDoneUI(aTodo.is_done)}>{aTodo.title}</TableCell>
+      <TableCell className={applyIsDoneUI(aTodo.is_done)}>{aTodo.userId}</TableCell>
       <TableCell className={applyIsDoneUI(aTodo.is_done)}>{`${aTodo.created_at}`}</TableCell>
       <TableCell>
         <div className="relative flex justify-end items-center gap-2">
@@ -224,6 +224,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
         <TableHeader>
           <TableColumn>아이디</TableColumn>
           <TableColumn>할 일 목록</TableColumn>
+          <TableColumn>작성자ID</TableColumn>
           <TableColumn>생성일</TableColumn>
           <TableColumn>액션</TableColumn>
         </TableHeader>

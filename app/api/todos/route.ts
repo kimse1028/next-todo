@@ -1,39 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import dummyTodos from '@/data/dummy.json'
 import { fetchTodos, addATodo } from "@/data/firestore";
 
-
-// 모든 할일 가져오기
 export async function GET(request: NextRequest) {
+  const userId = request.headers.get('user-id');
+  if (!userId) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
 
-  const fetchedTodos = await fetchTodos();
+  const fetchedTodos = await fetchTodos(userId);
   const response = {
-    message: 'todos 몽땅 가져오기',
+    message: 'User todos fetched successfully',
     data: fetchedTodos
   }
 
   return NextResponse.json(response, { status: 200 });
 }
 
-// 할일 추가
 export async function POST(request: NextRequest) {
+  const { title, userId } = await request.json();
 
-  const { title } = await request.json();
-
-  if (title === undefined) {
-
-      const errMessage = {
-        message : '할 일을 작성해주세요.'
-      }
-
-      return NextResponse.json(errMessage, { status: 422 });
+  if (!title || !userId) {
+    const errMessage = {
+      message: 'Title and userId are required.'
+    }
+    return NextResponse.json(errMessage, { status: 422 });
   }
 
-
-  const addedTodo = await addATodo({ title });
+  const addedTodo = await addATodo({ title, userId });
 
   const response = {
-    message: '할일 추가 성공',
+    message: 'Todo added successfully',
     data: addedTodo
   }
 

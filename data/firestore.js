@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getFirestore, collection, doc, getDocs, getDoc, setDoc, Timestamp, deleteDoc, updateDoc, query, orderBy } from "firebase/firestore";
+import { getFirestore, collection, doc, getDocs, getDoc, setDoc, Timestamp, deleteDoc, updateDoc, query, orderBy, where } from "firebase/firestore";
 
 
 // Your web app's Firebase configuration
@@ -20,9 +20,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // 모든 할 일 조회
-export async function fetchTodos(){
+export async function fetchTodos(userId) {
   const todosRef = collection(db, "todos");
-  const descQuery = query(todosRef, orderBy("created_at", "desc"));
+  const descQuery = query(todosRef,
+    where("userId", "==", userId),
+    orderBy("created_at", "desc")
+  );
 
   const querySnapshot = await getDocs(descQuery);
 
@@ -49,9 +52,7 @@ export async function fetchTodos(){
 }
 
 // 할 일 추가
-export async function addATodo({ title }){
-
-// Add a new document with a generated id
+export async function addATodo({ title, userId }) {
   const newTodoRef = doc(collection(db, "todos"));
 
   const createdAtTimestamp = Timestamp.fromDate(new Date())
@@ -60,9 +61,10 @@ export async function addATodo({ title }){
     id: newTodoRef.id,
     title: title,
     is_done: false,
-    created_at: createdAtTimestamp
+    created_at: createdAtTimestamp,
+    userId: userId
   }
-// later...
+
   await setDoc(newTodoRef, newTodoData);
 
   return {
@@ -70,6 +72,7 @@ export async function addATodo({ title }){
     title: title,
     is_done: false,
     created_at: createdAtTimestamp.toDate(),
+    userId: userId
   }
 }
 
