@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { auth } from '../../lib/firebase';
-import { signInWithGoogle } from '../../lib/auth';
 import { useRouter } from 'next/navigation';
 import { Button, Input } from '@nextui-org/react';
 import Link from 'next/link';

@@ -4,6 +4,7 @@ import { fetchTodos, addATodo } from "@/data/firestore";
 export async function GET(request: NextRequest) {
   const userId = request.headers.get('user-id');
   if (!userId) {
+    console.log("Route Unauthorized", userId);
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
   }
 
