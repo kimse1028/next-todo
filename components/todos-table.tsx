@@ -42,7 +42,13 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     modalType: 'detail' as CustomModalType
   });
 
+  //router가 갑자기 안먹어서 일단 보류
   const router = useRouter();
+  //router 임시 대안
+  const refreshPage = () => {
+    window.location.reload();
+  };
+
   const { user } = useAuth();
 
   const addATodoHandler = async (title: string) => {
@@ -63,6 +69,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
     setNewTodoInput('');
     router.refresh();
+    refreshPage();
     setIsLoading(false);
     notifySuccessAddedEvent("할 일이 추가되었어요!");
     console.log(`할 일 추가완료 : ${newTodoInput}`);
@@ -87,6 +94,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     });
 
     router.refresh();
+    refreshPage();
     notifySuccessAddedEvent("할 일이 수정되었어요!");
     console.log(`할 일 수정완료 : ${newTodoInput}`);
   };
@@ -102,6 +110,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     });
 
     router.refresh();
+    refreshPage();
     notifySuccessAddedEvent("할 일이 삭제되었어요!");
     console.log(`할 일 삭제완료 : ${newTodoInput}`);
   };
