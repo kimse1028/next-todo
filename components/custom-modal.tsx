@@ -85,7 +85,7 @@ const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete } : {
                 variant="bordered"
                 isRequired
                 defaultValue={focusedTodo.title}
-                value={editedTodoInput}
+                value={editedTodoInput.toString()}
                 onValueChange={setEditedTodoInput}
               />
               <div className="flex py-2 px-1 space-x-2">
@@ -105,7 +105,7 @@ const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete } : {
             <ModalFooter>
               <Button color="warning" variant="flat" onPress={() => {
                 setIsLoading(true);
-                onEdit(focusedTodo.id, editedTodoInput, isDone);
+                onEdit(focusedTodo.id, editedTodoInput.toString(), isDone);
               }}>
                 {(isLoading) ? <CircularProgress color="warning" size="sm" aria-label="Loading..."/> : "수정"}
               </Button>
