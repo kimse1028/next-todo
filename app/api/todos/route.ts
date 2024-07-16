@@ -1,8 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchTodos, addATodo } from "@/data/firestore";
+import { auth } from '@/lib/firebaseAdmin';
+
+async function verifyToken(request: NextRequest) {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+  try {
+    const decodedToken = await auth.verifyIdToken(token);
+    return decodedToken.uid;
+  } catch (error) {
+    console.error('Error verifying token:', error);
+    return null;
+  }
+}
 
 export async function GET(request: NextRequest) {
-  const userId = request.headers.get('user-id');
+  const userId = await verifyToken(request);
   if (!userId) {
     console.log("Route Unauthorized", userId);
     return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
