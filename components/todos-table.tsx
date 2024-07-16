@@ -131,7 +131,6 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
     return <TableRow key={aTodo.id}>
       <TableCell className={applyIsDoneUI(aTodo.is_done)}>{aTodo.id.slice(0, 4)}</TableCell>
       <TableCell className={applyIsDoneUI(aTodo.is_done)}>{aTodo.title}</TableCell>
-      <TableCell className={applyIsDoneUI(aTodo.is_done)}>{aTodo.userId}</TableCell>
       <TableCell className={applyIsDoneUI(aTodo.is_done)}>{`${aTodo.created_at}`}</TableCell>
       <TableCell>
         <div className="relative flex justify-end items-center gap-2">
@@ -222,9 +221,8 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
       <div className="h-6">{isLoading && <Spinner size="sm" color="warning" />}</div>
       <Table aria-label="Example static collection table">
         <TableHeader>
-          <TableColumn>아이디</TableColumn>
+          <TableColumn>고유번호</TableColumn>
           <TableColumn>할 일 목록</TableColumn>
-          <TableColumn>작성자ID</TableColumn>
           <TableColumn>생성일</TableColumn>
           <TableColumn>액션</TableColumn>
         </TableHeader>

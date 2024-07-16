@@ -8,7 +8,6 @@ export type Todo = {
   id: string;
   title: string;
   is_done: boolean;
-  userId: string;
   created_at: Date;
 }
 
