@@ -2,28 +2,10 @@
 
 import React, { useState } from "react";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-  Input,
-  PopoverTrigger,
-  Popover,
-  PopoverContent, Spinner, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
-  Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure, modal, Checkbox, Switch, CircularProgress
+  Input, ModalContent, ModalHeader, ModalBody, ModalFooter, Switch, CircularProgress
 } from "@nextui-org/react";
-import { CustomModalType, FocusedTodoType, Todo } from "@/types";
+import { CustomModalType, Todo } from "@/types";
 import { Button } from "@nextui-org/button";
-import { useRouter } from "next/navigation";
-import { VerticalDotsIcon } from "./icons";
-import exp from "node:constants";
-import { MailIcon } from "@nextui-org/shared-icons";
-import { Link } from "@nextui-org/link";
-
-
-
 
 const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete } : {
   focusedTodo: Todo,
