@@ -51,7 +51,9 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
   const router = useRouter();
   //router 임시 대안
   const refreshPage = () => {
-    window.location.reload();
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000); // 2000 밀리초 = 2초
   };
 
   const { user } = useAuth();
@@ -107,9 +109,38 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
       router.refresh();
       refreshPage();
       setIsLoading(false);
-      notifySuccessAddedEvent("할 일이 추가되었어요!");
+      notifySuccessAddedEvent("할 일이 추가되었어요! (Next.js API)");
       console.log(`할 일 추가완료 : ${newTodoInput}`);
     };
+
+  const editATodoFunctionsHandler = async (
+    id: string,
+    editedTitle: string,
+    editedIsDone: boolean
+  ) => {
+    setIsLoading(true);
+
+    try {
+      await new Promise(f => setTimeout(f, 100));
+
+      // Firebase Function 호출
+      const updateTodoFunction = httpsCallable(functions, 'updateTodo');
+      const result = await updateTodoFunction({ id, title: editedTitle, is_done: editedIsDone });
+
+      console.log(result.data);
+
+      notifySuccessAddedEvent("할 일이 수정되었어요! (Firebase Functions)");
+      console.log(`할 일 수정완료 (Firebase Functions): ${editedTitle}`);
+
+      refreshPage();
+    } catch (error) {
+      console.error("Firebase Function 호출 중 오류 발생:", error);
+      notifyErrorEvent("할 일 수정 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
 
 
     const editATodoHandler = async (
@@ -130,9 +161,35 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
       router.refresh();
       refreshPage();
-      notifySuccessAddedEvent("할 일이 수정되었어요!");
+      notifySuccessAddedEvent("할 일이 수정되었어요! (Next.js API)");
       console.log(`할 일 수정완료 : ${newTodoInput}`);
     };
+
+  const deleteATodoFunctionsHandler = async (id: string) => {
+    setIsLoading(true);
+
+    try {
+      // 1초 지연
+      await new Promise(f => setTimeout(f, 100));
+
+      // Firebase Function 호출
+      const deleteTodoFunction = httpsCallable(functions, 'deleteTodo');
+      const result = await deleteTodoFunction({ id });
+
+      console.log(result.data);
+
+      notifySuccessAddedEvent("할 일이 삭제되었어요! (Firebase Functions)");
+      console.log(`할 일 삭제완료 (Firebase Functions): ${id}`);
+
+      // 2초 후 페이지 새로고침
+      refreshPage();
+    } catch (error) {
+      console.error("Firebase Function 호출 중 오류 발생:", error);
+      notifyErrorEvent("할 일 삭제 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
     const deleteATodoHandler = async (id: string) => {
@@ -146,7 +203,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
 
       router.refresh();
       refreshPage();
-      notifySuccessAddedEvent("할 일이 삭제되었어요!");
+      notifySuccessAddedEvent("할 일이 삭제되었어요! (Next.js API)");
       console.log(`할 일 삭제완료 : ${newTodoInput}`);
     };
 
@@ -219,9 +276,19 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
                              await editATodoHandler(id, title, isDone);
                              onClose();
                            }}
+                           onEditFunctions={async (id, title, isDone) => {
+                             console.log(id, title, isDone);
+                             await editATodoFunctionsHandler(id, title, isDone);
+                             onClose();
+                           }}
                            onDelete={async (id) => {
                              console.log("onDelete / id:", id);
                              await deleteATodoHandler(id);
+                             onClose();
+                           }}
+                           onDeleteFunctions={async (id) => {
+                             console.log("onDelete / id:", id);
+                             await deleteATodoFunctionsHandler(id);
                              onClose();
                            }}
               />)
@@ -268,7 +335,7 @@ const TodosTable = ({ todos } : { todos: Todo[] }) => {
                       await addTodoWithFunctions(newTodoInput)
                     }}
             >
-              Function
+              Functions
             </Button> :
             DisabledTodoAddButton()
           }

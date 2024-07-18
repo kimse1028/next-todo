@@ -1,22 +1,30 @@
 'use client'
 
 import React, { useState } from "react";
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import { app } from '@/lib/firebase';
 import {
   Input, ModalContent, ModalHeader, ModalBody, ModalFooter, Switch, CircularProgress
 } from "@nextui-org/react";
 import { CustomModalType, Todo } from "@/types";
 import { Button } from "@nextui-org/button";
 
-const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete } : {
+const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete, onEditFunctions, onDeleteFunctions } : {
   focusedTodo: Todo,
   modalType: CustomModalType,
   onClose: () => void,
   onEdit: (id: string, title: string, isDone: boolean) => void,
-  onDelete: (id: string) => void
+  onEditFunctions: (id: string, title: string, isDone: boolean) => void,
+  onDelete: (id: string) => void,
+  onDeleteFunctions: (id: string) => void
 }) => {
 
+  //firebase functions
+  const functions = getFunctions(app);
+
   // 로딩상태
-  const [isLoading, setIsLoading] = useState<Boolean>(false);
+  const [isLoading1, setIsLoading1] = useState<Boolean>(false);
+  const [isLoading2, setIsLoading2] = useState<Boolean>(false);
 
   // 수정된 선택
   const [isDone, setIsDone] = useState(focusedTodo.is_done);
@@ -86,10 +94,16 @@ const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete } : {
             </ModalBody>
             <ModalFooter>
               <Button color="warning" variant="flat" onPress={() => {
-                setIsLoading(true);
+                setIsLoading1(true);
                 onEdit(focusedTodo.id, editedTodoInput.toString(), isDone);
               }}>
-                {(isLoading) ? <CircularProgress color="warning" size="sm" aria-label="Loading..."/> : "수정"}
+                {(isLoading1) ? <CircularProgress color="warning" size="sm" aria-label="Loading..."/> : "Next.js API 수정"}
+              </Button>
+              <Button color="warning" variant="flat" onPress={() => {
+                setIsLoading2(true);
+                onEditFunctions(focusedTodo.id, editedTodoInput.toString(), isDone);
+              }}>
+                {(isLoading2) ? <CircularProgress color="warning" size="sm" aria-label="Loading..."/> : "Functions 수정"}
               </Button>
               <Button color="default" onPress={onClose}>
                 닫기
@@ -126,10 +140,16 @@ const CustomModal = ({ focusedTodo, modalType, onClose, onEdit, onDelete } : {
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="flat" onPress={() => {
-                setIsLoading(true);
+                setIsLoading1(true);
                 onDelete(focusedTodo.id);
               }}>
-                {(isLoading) ? <CircularProgress color="danger" size="sm" aria-label="Loading..."/> : "삭제"}
+                {(isLoading1) ? <CircularProgress color="danger" size="sm" aria-label="Loading..."/> : "Next.js API 삭제"}
+              </Button>
+              <Button color="danger" variant="flat" onPress={() => {
+                setIsLoading2(true);
+                onDeleteFunctions(focusedTodo.id);
+              }}>
+                {(isLoading2) ? <CircularProgress color="danger" size="sm" aria-label="Loading..."/> : "Functions 삭제"}
               </Button>
               <Button color="default" onPress={onClose}>
                 닫기
