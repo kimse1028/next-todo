@@ -126,6 +126,7 @@ export async function editATodo(id, { title, is_done }){
   const fetchedTodo = await fetchATodo(id);
 
   if (fetchedTodo === null) {
+
     return null;
   }
 
@@ -146,4 +147,3 @@ export async function editATodo(id, { title, is_done }){
 
 }
 
-module.exports = { fetchTodos, addATodo, fetchATodo, deleteATodo, editATodo }

@@ -16,6 +16,9 @@ const nextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true
+  },
+  experimental: {
+    esmExternals: true
   }
 }
 
