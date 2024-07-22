@@ -35,8 +35,12 @@ export default function Login() {
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (error) {
-      console.error("Error signing in with Google", error);
+    } catch (error: unknown) {
+      if ((error as { code?: string }).code === 'auth/disallowed-useragent') {
+        alert("죄송합니다. 현재 사용 중인 브라우저에서는 Google 로그인이 지원되지 않습니다. 다른 로그인 방법을 사용하거나 최신 브라우저로 업데이트해 주세요.");
+      } else {
+        alert("로그인 중 오류가 발생했습니다. 다시 시도해 주세요.");
+      }
     }
   };
 
